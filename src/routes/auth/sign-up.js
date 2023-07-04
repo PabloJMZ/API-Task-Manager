@@ -3,8 +3,10 @@ const router = express.Router();
 
 const skipAuthentication = require('../../auth/skipAuthentication');
 const passport = require('passport');
+const validateSchema = require('../../validations/validate-schemas');
+const { signUpBody } = require('../../validations/request');
 
-router.post('/sign-up', skipAuthentication,(req, res, next) => {
+router.post('/sign-up', skipAuthentication, validateSchema(signUpBody, "body"),(req, res, next) => {
   passport.authenticate('SignUp',{failureFlash: true}, (err, user) => {
     if (err) return next(err);
     if (!user) return res.status(401).json({ message: req.flash("messageSignUp")[0] || "error" });

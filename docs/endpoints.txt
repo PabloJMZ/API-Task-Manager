@@ -1,0 +1,142 @@
+==== E N P O I N T S =====
+
+    - POST /auth/sign-in:
+        Iniciar una sesión de un usuario ya registrado, el cuerpo de la solicitud solo puede incluir:
+        "username": 3 - 30 caracteres y solo puede incluir: numeros, letras y guiones bajos(_), /^[a-zA-Z0-9_]+$/
+        "password": 3 - 30 caracteres
+
+        exito: status(200) y un objeto con los datos del usuario
+        error interno: status(500)
+        inautorizado: status(401) no hay usuario registrado
+
+        detalles: 
+        - si ya hay sesión iniciada se enviara un mensaje de conflicto: status(409)
+        - si el cuerpo de la solicitud es invalido se enviara un mensaje de error: status(400)
+    
+    - POST /auth/sign-up:
+        Registrar un usuario, el cuerpo de la solicitud solo puede incluir:
+        "username": 3 - 30 caracteres y solo puede incluir: numeros, letras y guiones bajos(_), /^[a-zA-Z0-9_]+$/
+        "password": 3 - 30 caracteres
+        "email": email valido
+
+        exito: status(200) y un objeto con los datos del usuario
+        error interno: status(500)
+        inautorizado: status(401) ya hay un usuario registrado con el "username"
+
+        detalles: 
+        - al registrarse se genera una sesión al mismo tiempo, ya no es necesario ir a "/auth/sign-in"
+        - si ya hay sesión iniciada se enviara un mensaje de conflicto: status(409)
+        - si el cuerpo de la solicitud es invalido se enviara un mensaje de error: status(400)
+    
+    - GET /auth/log-out:
+        Cerrar la sesión actual del usuario
+
+        exito: status(200)
+        error interno: status(500)
+
+        detalles:
+        - Tiene que tener una sesion iniciada
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+
+    - POST /tasks/add-task:
+        Crear una tarea, el usuario que envie la solicitud creara una tarea para si mismo
+        el cuerpo de la solicitud debe contener:
+        "title": 3-30 caracteres
+        "description": 3-100 caracteres
+
+        exito: status(200) y un objeto con los datos de la tarea creada
+        error interno: status(500)
+
+        detalles: 
+        - si el cuerpo de la solicitud es invalido se enviara un mensaje de error: status(400)
+        - si no hay una sesion se enviara mensaje de inautorizado: status(409)
+    
+    - GET /tasks/all-tasks:
+        Recibir la lista de tareas que ha creado el usuario y las que se le han asignado
+
+        exito: status(200) y un objeto con los datos de todas las tareas
+        error interno: status(500)
+
+        detalles: 
+        - si no hay una sesion se enviara mensaje de inautorizado: status(409)
+    
+    - PATCH /tasks/complete-assign
+        Completar una tarea asignada por otro usuario, debe pasarse el id de la asignación por un query en la url
+
+        exito: status(200) y el objeto de la tarea modificada
+        error interno: status(500)
+
+        detalles:
+        - si el id es invalido, se enviara mensaje de error: status(400)
+        - si la tarea no existe, se enviara mensaje de error: status(404)
+        - si intenta completar una tarea que no le pertenece, se enviara mensaje de error: status(404)
+        - el id tiene que ser valido para la base de datos mongoDB
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+    
+    - POST /tasks/assign-task:
+        asignar una tarea a otro usuario a traves de su username
+        el cuerpo de la solicitud debe incluir:
+        "username": 3 - 30 caracteres y solo puede incluir: numeros, letras y guiones bajos(_), /^[a-zA-Z0-9_]+$/
+        "title": 3-30 caracteres
+        "description": 3-100 caracteres
+
+        exito: status(200) y se enviara los datos de la tarea creada
+        error interno: status(500)
+
+        detalles:
+        - si el usuario al que se le quiere asignar la tarea, no existe, se enviara mensaje de error: status(404)
+        - si el cuerpo de la solicitud es invalido, se enviara mensaje de error: status(400)
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+    
+    - DELETE /tasks/delete-task
+        eliminar una tarea que ha sido creada para si mismo, debe pasarse el id de la tarea por un query en la url
+
+        exito: status(200) y el objeto de la tarea eliminada
+        error interno: status(500)
+
+        detalles: 
+        - si el id es invalido, se enviara mensaje de error: status(400)
+        - si la tarea no existe, se enviara mensaje de error: status(404)
+        - si intenta eliminar una tarea que no le pertenece, se enviara mensaje de error: status(404)
+        - el id tiene que ser valido para la base de datos mongoDB
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+    
+    - DELETE /tasks/delete-assign:
+        eliminar una asignación, solo puede eliminar quien la creo,  debe pasarse el id de la asignación por un query en la url
+
+        exito: status(200) y el objeto de la asignación eliminada
+        error interno: status(500)
+
+        detalles: 
+        - si el id es invalido, se enviara mensaje de error: status(400)
+        - si la tarea no existe, se enviara mensaje de error: status(404)
+        - si intenta eliminar una asignación que no le pertenece, se enviara mensaje de error: status(404)
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+        - el id tiene que ser valido para la base de datos mongoDB
+    
+    - GET /tasks/all-assigns:
+        obtener todas las asignaciones que ha creado
+
+        exito: status(200) y objeto con las asignaciones
+        error interno: status(500)
+
+        detalles:
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+    
+    - PATCH /tasks/update-task:
+        modificar el "title", "description" o "complete" de una tarea creada por si mismo, debe pasarse el id de la tarea por un query en la url
+        "title": 3-30 caracteres
+        "description": 3-100 caracteres
+        "complete": true o false
+
+        exito: status(200) y objeto de la tarea modificada
+        error interno: status(500)
+
+        detalles:
+        - puedes modificar uno o varios datos de la tarea
+        - Si no hay sesion iniciada se enviara mensaje de inautorizado: status(401)
+        - si el id es invalido, se enviara mensaje de error: status(400)
+        - si la tarea no existe, se enviara mensaje de error: status(404)
+        - si intenta eliminar una asignación que no le pertenece, se enviara mensaje de error: status(404)
+        - el id tiene que ser valido para la base de datos mongoDB
+        - en esta ruta se hacen dos validaciones antes de llegar a la funcionalidad de la ruta, previamente se valida el "query" y "body" de la solicitud

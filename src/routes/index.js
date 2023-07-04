@@ -6,7 +6,7 @@ const tasks = require('./tasks');
 const isAuthenticated = require('../auth/isAuthenticated');
 
 router.use(auth);
-router.use(isAuthenticated)
+router.use("/tasks", isAuthenticated)
 router.use(tasks);
 
 module.exports = router;
